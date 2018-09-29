@@ -72,6 +72,27 @@ app.post('/list', function (req, res) {
 
 });
 
+// complete a item  
+app.post('/completeItem/:id', function (req, res) {
+ 
+    let id = req.params.id;
+ 
+    try{
+        mc.query("UPDATE item SET isCompleted = true where id=? ", id, function (error, results, fields) {
+            if (error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
+            mc.query('SELECT * FROM item where id=?',id, function (error, results, fields) {
+            if (error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
+            return res.send({ error: false, data: results[0], message: 'Item has been marked complete successfully.' });
+            });
+
+        });
+    }
+    catch(error){
+        return res.status(500).send({ error:true, message: 'UNKNOWN_ERROR' });
+    }
+ 
+});
+
 // Add a new item  
 app.post('/item', function (req, res) {
  
