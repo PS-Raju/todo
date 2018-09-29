@@ -3,25 +3,40 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
- 
+const fs = require("fs");
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
  
+var mc;
+
 // connection configurations
-const mc = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'todo'})
- 
-// connect to database
-mc.connect();
- 
+
+fs.readFile("dbConnectionString.txt", "utf8", function(err, data) {
+    if(err){
+        console.log(err);
+    }
+    mc = mysql.createConnection({
+        host: data.toString(),
+        user: 'todo',
+        password: 'todopassword',
+        database: 'todo'})
+    mc.connect();
+ }); 
+     
 // default 
 app.get('/', function (req, res) {
-    return res.send({ error: true, message: 'welcome to todo' })
+    try{
+        mc.query("SELECT count(*) as users_count from user", function (error, results, fields) {
+            if (error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
+            return res.send({ error: false, data: results[0], message: 'Everything Ok!!' });
+        });
+    }
+    catch(error){
+        return res.send({ error: true, message: error.toString() })
+    }
 });
 
 // Add a new item  
