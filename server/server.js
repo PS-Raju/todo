@@ -109,6 +109,24 @@ app.post('/completeItem/:id', function (req, res) {
 });
 
 // Add a new item  
+app.delete('/item/:id', function (req, res) {
+ 
+    let id = req.params.id;
+ 
+    try{
+        mc.query("DELETE from item where id=? ", id, function (error, results, fields) {
+            if (error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
+            return res.send({ error: false, data: null, message: 'Item has been deleted successfully.' });
+
+        });
+    }
+    catch(error){
+        return res.status(500).send({ error:true, message: 'UNKNOWN_ERROR' });
+    }
+ 
+});
+
+// Add a new item  
 app.post('/item', function (req, res) {
  
     let item = req.body.item;
@@ -153,6 +171,34 @@ app.get('/list/:id', function (req, res) {
         mc.query('SELECT * FROM item where listId=?',id, function (error, results, fields) {
         if(error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
         return res.send({ error: false, data: results, message: 'Lists' });
+        });
+    }
+    catch(error){
+        return res.status(500).send({ error:true, message: 'UNKNOWN_ERROR' });
+    }    
+});
+
+// Retrieve all items in a list 
+app.get('/list/:id/completed', function (req, res) {
+    let id = req.params.id;
+    try{
+        mc.query('SELECT * FROM item where listId=? and isCompleted = true',id, function (error, results, fields) {
+        if(error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
+        return res.send({ error: false, data: results, message: 'Completed list' });
+        });
+    }
+    catch(error){
+        return res.status(500).send({ error:true, message: 'UNKNOWN_ERROR' });
+    }    
+});
+
+// Retrieve all items in a list 
+app.get('/list/:id/todo', function (req, res) {
+    let id = req.params.id;
+    try{
+        mc.query('SELECT * FROM item where listId=? and isCompleted = false',id, function (error, results, fields) {
+        if(error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
+        return res.send({ error: false, data: results, message: 'Todo list' });
         });
     }
     catch(error){
