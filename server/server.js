@@ -182,7 +182,7 @@ app.get('/list/:id', function (req, res) {
 app.get('/list/:id/completed', function (req, res) {
     let id = req.params.id;
     try{
-        mc.query('SELECT * FROM item where listId=? and isCompleted = true',id, function (error, results, fields) {
+        mc.query('SELECT top 10 * FROM item where listId=? and isCompleted = true',id, function (error, results, fields) {
         if(error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
         return res.send({ error: false, data: results, message: 'Completed list' });
         });
@@ -196,7 +196,7 @@ app.get('/list/:id/completed', function (req, res) {
 app.get('/list/:id/todo', function (req, res) {
     let id = req.params.id;
     try{
-        mc.query('SELECT * FROM item where listId=? and isCompleted = false',id, function (error, results, fields) {
+        mc.query('SELECT * FROM item where listId=? and isCompleted = false order by dueDate',id, function (error, results, fields) {
         if(error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
         return res.send({ error: false, data: results, message: 'Todo list' });
         });
