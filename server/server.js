@@ -80,17 +80,17 @@ app.post('/login', function (req, res) {
         return res.status(400).send({ error:true, message: 'Please provide user details' });
     }
     try{  
-        mc.query('SELECT password FROM user where mobile = ?',user.mobile, function (error, results, fields) {
+        mc.query('SELECT * FROM user where mobile = ?',user.mobile, function (error, results, fields) {
             if(error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
             if (results.length > 0) {
                 if (results[0].password==user.password) {
-                    return res.send({ error: false, data: "Success", message: 'Login successfully' });
+                    return res.send({ error: false, data: results[0], message: 'Success' });
                 }  else{
-                    return res.send({ error: false, data: "Fail", message: 'Login failed' });
+                    return res.send({ error: false, data: results[0], message: 'Fail' });
                 }
             }
             else{
-                return res.send({ error: false, data: "UserNotFound", message: 'User not found' });
+                return res.send({ error: false, data: "", message: 'UserNotFound' });
             }
                 
         });
