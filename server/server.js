@@ -148,7 +148,7 @@ app.post('/item/:id/status/:status', function (req, res) {
  
 });
 
-// Add a new item  
+// delete an item  
 app.delete('/item/:id', function (req, res) {
  
     let id = req.params.id;
@@ -266,7 +266,7 @@ app.get('/nonlistitems', function (req, res) {
 app.get('/items/:userId', function (req, res) {
     let id = req.params.userId;
     try{
-        mc.query('SELECT * FROM item where userId=? order by dueDate',id, function (error, results, fields) {
+        mc.query('SELECT * FROM item where userId=? order by dueDates',id, function (error, results, fields) {
         if(error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
         
         var activeItem =[];
@@ -292,6 +292,95 @@ app.get('/items/:userId', function (req, res) {
     catch(error){
         return res.status(500).send({ error:true, message: 'UNKNOWN_ERROR' });
     }    
+});
+
+
+
+//----------------------notes api's----------------------
+
+app.get('/notes/:userId', function (req, res) {
+    let id = req.params.userId;
+    try{
+        mc.query('SELECT * FROM notes where userId=? order by updatedDate desc',id, function (error, results, fields) {
+        if(error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
+        return res.status(200).send({ error:false, data:results, message: 'list of notes' });
+        });
+    }
+    catch(error){
+        return res.status(500).send({ error:true, message: 'UNKNOWN_ERROR' });
+    }    
+});
+
+// Add a new item  
+app.post('/notes', function (req, res) {
+ 
+    let notes = req.body.notes;
+ 
+    if (!notes) {
+        return res.status(400).send({ error:true, message: 'Please provide notes details' });
+    }
+    try{
+        mc.query("INSERT INTO notes SET ?", notes, function (error, results, fields) {
+            if (error) {
+                console.log(error);
+                return res.status(500).send({ error:true, message: 'DB_ERROR' });
+            
+            }
+            let insertedId = results.insertId;
+            mc.query('SELECT * FROM notes where id=?',insertedId, function (error, results, fields) {
+            if (error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
+            return res.send({ error: false, data: results[0], message: 'New notes has been created successfully.' });
+            });
+
+        });
+    }
+    catch(error){
+        return res.status(500).send({ error:true, message: 'UNKNOWN_ERROR' });
+    }
+ 
+});
+
+// Add a new item  
+app.put('/notes', function (req, res) {
+ 
+    let notes = req.body.notes;
+ 
+    if (!notes) {
+        return res.status(400).send({ error:true, message: 'Please provide notes details' });
+    }
+    try{
+        mc.query("UPDATE notes SET title=?, content=? , updatedDate=? where id=? ", [notes.title, notes.content, notes.updatedDate, notes.id], function (error, results, fields) {
+            if (error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
+            let insertedId = results.insertId;
+            mc.query('SELECT * FROM notes where id=?',insertedId, function (error, results, fields) {
+            if (error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
+            return res.send({ error: false, data: results[0], message: 'Notes has been updated successfully.' });
+            });
+
+        });
+    }
+    catch(error){
+        return res.status(500).send({ error:true, message: 'UNKNOWN_ERROR' });
+    }
+ 
+});
+
+// delete an item  
+app.delete('/notes/:id', function (req, res) {
+ 
+    let id = req.params.id;
+ 
+    try{
+        mc.query("DELETE from notes where id=? ", id, function (error, results, fields) {
+            if (error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
+            return res.send({ error: false, data: null, message: 'Notes has been deleted successfully.' });
+
+        });
+    }
+    catch(error){
+        return res.status(500).send({ error:true, message: 'UNKNOWN_ERROR' });
+    }
+ 
 });
 
 
