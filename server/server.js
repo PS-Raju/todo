@@ -266,9 +266,11 @@ app.get('/nonlistitems', function (req, res) {
 app.get('/items/:userId', function (req, res) {
     let id = req.params.userId;
     try{
-        mc.query('SELECT * FROM item where userId=? order by dueDates',id, function (error, results, fields) {
-        if(error) return res.status(500).send({ error:true, message: 'DB_ERROR' });
-        
+        mc.query('SELECT * FROM item where userId=? order by dueDate',id, function (error, results, fields) {
+        if(error) {
+                console.log(error);
+            return res.status(500).send({ error:true, message: 'DB_ERROR' });
+        }
         var activeItem =[];
         var completedItem = [];
 
